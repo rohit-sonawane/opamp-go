@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opamp-go
+module github.com/rohit-sonawane/opamp-go
 
 go 1.22
 
