@@ -87,11 +87,8 @@ func sendServerToAgentMessage() {
 	fmt.Println("Message sent successfully")
 }
 
-func main() {
-	if os.Getenv("STOP_SERVER") == "true" {
-		stopMockServer()
-		return
-	}
+func Run() {
+
 	// Initialize Gin router
 	r := gin.Default()
 
@@ -175,4 +172,8 @@ func main() {
 	<-quit
 	log.Println("Shutting down server...")
 	stopMockServer()
+}
+
+func main() {
+	Run()
 }
