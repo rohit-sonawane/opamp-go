@@ -10,12 +10,24 @@ import (
 )
 
 type Agents struct {
-	mux         sync.RWMutex
-	agentsById  map[InstanceId]*Agent
-	connections map[types.Connection]map[InstanceId]bool
+	mux          sync.RWMutex
+	agentsById   map[InstanceId]*Agent
+	connections  map[types.Connection]map[InstanceId]bool
+	nextresponse *protobufs.ServerToAgent
 }
 
 var logger = log.New(log.Default().Writer(), "[AGENTS] ", log.Default().Flags()|log.Lmsgprefix|log.Lmicroseconds)
+
+func (agents *Agents) GetNextResponse() *protobufs.ServerToAgent {
+	if agents.nextresponse == nil {
+		return &protobufs.ServerToAgent{}
+	}
+	return agents.nextresponse
+}
+
+func (agents *Agents) UpdateNextResponse(nextresponse *protobufs.ServerToAgent) {
+	agents.nextresponse = nextresponse
+}
 
 // RemoveConnection removes the connection all Agent instances associated with the
 // connection.

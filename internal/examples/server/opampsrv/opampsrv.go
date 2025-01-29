@@ -11,6 +11,7 @@ import (
 
 	"github.com/open-telemetry/opamp-go/internal"
 	"github.com/open-telemetry/opamp-go/internal/examples/server/data"
+
 	"github.com/open-telemetry/opamp-go/protobufs"
 	"github.com/open-telemetry/opamp-go/server"
 	"github.com/open-telemetry/opamp-go/server/types"
@@ -20,6 +21,18 @@ type Server struct {
 	opampSrv server.OpAMPServer
 	agents   *data.Agents
 	logger   *Logger
+}
+
+func (srv *Server) GetAllAgents() map[data.InstanceId]*data.Agent {
+	return srv.agents.GetAllAgentsReadonlyClone()
+}
+
+func (srv *Server) GetNextResponse() *protobufs.ServerToAgent {
+	return srv.agents.GetNextResponse()
+}
+
+func (srv *Server) UpdateNextResponse(nextresponse *protobufs.ServerToAgent) {
+	srv.agents.UpdateNextResponse(nextresponse)
 }
 
 func NewServer(agents *data.Agents) *Server {
@@ -80,12 +93,13 @@ func (srv *Server) Stop() {
 }
 
 func (srv *Server) onDisconnect(conn types.Connection) {
-	srv.agents.RemoveConnection(conn)
+	//srv.agents.RemoveConnection(conn)
 }
 
 func (srv *Server) onMessage(ctx context.Context, conn types.Connection, msg *protobufs.AgentToServer) *protobufs.ServerToAgent {
 	// Start building the response.
-	response := &protobufs.ServerToAgent{}
+	// response := &protobufs.ServerToAgent{}
+	response := srv.agents.GetNextResponse()
 
 	var instanceId data.InstanceId
 	if len(msg.InstanceUid) == 26 {

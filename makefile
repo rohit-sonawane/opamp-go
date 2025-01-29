@@ -76,3 +76,13 @@ tidy:
 	go mod tidy
 	cd internal/examples && rm -fr go.sum && go mod tidy
 	cd internal/tools && rm -fr go.sum && go mod tidy
+
+.PHONY: startMockServer
+
+startMockServer:
+	cd internal/examples/server && go run main.go
+
+
+.PHONY: stopMockServer
+stopMockServer:
+	curl -X POST http://localhost:8080/shutdown
