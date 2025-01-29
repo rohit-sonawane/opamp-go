@@ -14,9 +14,9 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/open-telemetry/opamp-go/internal/examples/server/certman"
-	"github.com/open-telemetry/opamp-go/protobufs"
-	"github.com/open-telemetry/opamp-go/server/types"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/server/certman"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/server/types"
 )
 
 // Agent represents a connected Agent.

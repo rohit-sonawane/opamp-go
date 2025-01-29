@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 // Connection represents one OpAMP connection.

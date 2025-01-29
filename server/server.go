@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/open-telemetry/opamp-go/server/types"
+	"github.com/rohit-sonawane/opamp-go/server/types"
 )
 
 // Settings contains the settings for attaching an OpAMP Server.

@@ -12,10 +12,10 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/gorilla/websocket"
 
-	"github.com/open-telemetry/opamp-go/client/internal"
-	"github.com/open-telemetry/opamp-go/client/types"
-	sharedinternal "github.com/open-telemetry/opamp-go/internal"
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/client/internal"
+	"github.com/rohit-sonawane/opamp-go/client/types"
+	sharedinternal "github.com/rohit-sonawane/opamp-go/internal"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 const (

@@ -18,10 +18,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	sharedinternal "github.com/open-telemetry/opamp-go/internal"
-	"github.com/open-telemetry/opamp-go/internal/testhelpers"
-	"github.com/open-telemetry/opamp-go/protobufs"
-	"github.com/open-telemetry/opamp-go/server/types"
+	sharedinternal "github.com/rohit-sonawane/opamp-go/internal"
+	"github.com/rohit-sonawane/opamp-go/internal/testhelpers"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/server/types"
 )
 
 func startServer(t *testing.T, settings *StartSettings) *server {

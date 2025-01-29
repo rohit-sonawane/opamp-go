@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/open-telemetry/opamp-go/internal/examples/agent/agent"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/agent/agent"
 )
 
 func main() {

@@ -13,10 +13,10 @@ import (
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/open-telemetry/opamp-go/client/types"
-	"github.com/open-telemetry/opamp-go/internal"
-	"github.com/open-telemetry/opamp-go/protobufs"
-	serverTypes "github.com/open-telemetry/opamp-go/server/types"
+	"github.com/rohit-sonawane/opamp-go/client/types"
+	"github.com/rohit-sonawane/opamp-go/internal"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
+	serverTypes "github.com/rohit-sonawane/opamp-go/server/types"
 )
 
 var (

@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
 
-	"github.com/open-telemetry/opamp-go/internal"
-	"github.com/open-telemetry/opamp-go/internal/examples/server/data"
-	"github.com/open-telemetry/opamp-go/internal/examples/server/opampsrv"
+	"github.com/rohit-sonawane/opamp-go/internal"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/server/data"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/server/opampsrv"
 )
 
 func changeCurrentDir(t *testing.T) string {

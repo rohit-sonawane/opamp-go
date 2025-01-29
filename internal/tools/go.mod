@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opamp-go/internal/tools
+module github.com/rohit-sonawane/opamp-go/internal/tools
 
 go 1.22
 

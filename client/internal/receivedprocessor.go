@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/open-telemetry/opamp-go/client/types"
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/client/types"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 // receivedProcessor handles the processing of messages received from the Server.

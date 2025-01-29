@@ -59,7 +59,7 @@ gen-proto:
         -w${PWD} $(OTEL_DOCKER_PROTOBUF) --proto_path=${PWD}/internal/opamp-spec/proto/ \
         --go_out=${PWD}/internal/proto/ -I${PWD}/internal/proto/ ${PWD}/$(file)))
 
-	cp -R internal/proto/github.com/open-telemetry/opamp-go/protobufs/* protobufs/
+	cp -R internal/proto/github.com/rohit-sonawane/opamp-go/protobufs/* protobufs/
 	rm -rf internal/proto/github.com/
 
 .PHONY: gomoddownload

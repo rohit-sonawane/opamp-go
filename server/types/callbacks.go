@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 // ConnectionResponse is the return type of the OnConnecting callback.

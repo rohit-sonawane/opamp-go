@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/open-telemetry/opamp-go/internal/examples/server/data"
-	"github.com/open-telemetry/opamp-go/internal/examples/server/opampsrv"
-	"github.com/open-telemetry/opamp-go/internal/examples/server/uisrv"
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/server/data"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/server/opampsrv"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/server/uisrv"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opamp-go/internal/examples
+module github.com/rohit-sonawane/opamp-go/internal/examples
 
 go 1.22
 
@@ -71,4 +71,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/open-telemetry/opamp-go => ../../
+replace github.com/rohit-sonawane/opamp-go => ../../

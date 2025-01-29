@@ -3,7 +3,7 @@ package internal
 import (
 	"sync"
 
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 	"google.golang.org/protobuf/proto"
 )
 

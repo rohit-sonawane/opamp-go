@@ -3,7 +3,7 @@ package internal
 import (
 	"context"
 
-	"github.com/open-telemetry/opamp-go/client/types"
+	"github.com/rohit-sonawane/opamp-go/client/types"
 )
 
 var _ types.Logger = &NopLogger{}

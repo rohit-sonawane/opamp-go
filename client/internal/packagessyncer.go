@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/open-telemetry/opamp-go/client/types"
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/client/types"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 // packagesSyncer performs the package syncing process.

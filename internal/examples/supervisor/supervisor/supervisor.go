@@ -18,12 +18,12 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/rawbytes"
 
-	"github.com/open-telemetry/opamp-go/client"
-	"github.com/open-telemetry/opamp-go/client/types"
-	"github.com/open-telemetry/opamp-go/internal/examples/supervisor/supervisor/commander"
-	"github.com/open-telemetry/opamp-go/internal/examples/supervisor/supervisor/config"
-	"github.com/open-telemetry/opamp-go/internal/examples/supervisor/supervisor/healthchecker"
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/client"
+	"github.com/rohit-sonawane/opamp-go/client/types"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/supervisor/supervisor/commander"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/supervisor/supervisor/config"
+	"github.com/rohit-sonawane/opamp-go/internal/examples/supervisor/supervisor/healthchecker"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 // This Supervisor is developed specifically for OpenTelemetry Collector.

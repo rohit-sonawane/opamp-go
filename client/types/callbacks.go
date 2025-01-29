@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/open-telemetry/opamp-go/protobufs"
+	"github.com/rohit-sonawane/opamp-go/protobufs"
 )
 
 // MessageData represents a message received from the server and handled by Callbacks.
