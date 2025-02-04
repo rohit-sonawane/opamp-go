@@ -1,4 +1,4 @@
-package main
+package mocksrv
 
 import (
 	"bytes"
@@ -174,6 +174,6 @@ func Run() {
 	stopMockServer()
 }
 
-func main() {
-	Run()
-}
+//func main() {
+//	Run()
+//}
