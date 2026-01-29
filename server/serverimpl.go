@@ -225,14 +225,18 @@ func (s *server) httpHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *server) handleWSConnection(reqCtx context.Context, wsConn *websocket.Conn, connectionCallbacks *serverTypes.ConnectionCallbacks) {
-	agentConn := wsConnection{wsConn: wsConn, connMutex: &sync.Mutex{}}
+	agentConn := newWSConnection(wsConn)
 
 	defer func() {
 		// Close the connection when all is done.
 		defer func() {
-			err := wsConn.Close()
+			err := agentConn.Disconnect()
 			if err != nil {
-				s.logger.Errorf(context.Background(), "error closing the WebSocket connection: %v", err)
+				if errors.Is(err, net.ErrClosed) {
+					s.logger.Debugf(context.Background(), "tried to close the WebSocket connection but it was already closed: %v", err)
+				} else {
+					s.logger.Errorf(context.Background(), "error closing the WebSocket connection: %v", err)
+				}
 			}
 		}()
 
@@ -296,9 +300,13 @@ func (s *server) handleWSConnection(reqCtx context.Context, wsConn *websocket.Co
 			}
 			sentCustomCapabilities = true
 		}
+
 		err = agentConn.Send(msgContext, response)
 		if err != nil {
+			// If we can read but not write to connection, we should break the loop to force a reconnect
 			s.logger.Errorf(msgContext, "Cannot send message to WebSocket: %v", err)
+			connectionCallbacks.OnMessageResponseError(agentConn, response, err)
+			break
 		}
 	}
 }

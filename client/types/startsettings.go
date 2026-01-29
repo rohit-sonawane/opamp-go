@@ -26,6 +26,12 @@ type StartSettings struct {
 	// Optional TLS config for HTTP connection.
 	TLSConfig *tls.Config
 
+	// Optional Proxy configuration
+	// The ProxyURL may be http(s) or socks5; if no schema is specified http is assumed.
+	ProxyURL string
+	// ProxyHeaders gives the headers an HTTP client will present on a proxy CONNECT request.
+	ProxyHeaders http.Header
+
 	// Agent information.
 	InstanceUid InstanceUid
 
@@ -39,7 +45,8 @@ type StartSettings struct {
 	// the Server to send a remote config back.
 	RemoteConfigStatus *protobufs.RemoteConfigStatus
 
-	LastConnectionSettingsHash []byte
+	// The last offered connection settings status.
+	LastConnectionSettingsStatus *protobufs.ConnectionSettingsStatus
 
 	// PackagesStateProvider provides access to the local state of packages.
 	// If nil then ReportsPackageStatuses and AcceptsPackages capabilities will be disabled,
@@ -48,6 +55,7 @@ type StartSettings struct {
 
 	// Defines the capabilities of the Agent. AgentCapabilities_ReportsStatus bit does not need to
 	// be set in this field, it will be set automatically since it is required by OpAMP protocol.
+	// Deprecated: Use client.SetCapabilities() instead.
 	Capabilities protobufs.AgentCapabilities
 
 	// EnableCompression can be set to true to enable the compression. Note that for WebSocket transport

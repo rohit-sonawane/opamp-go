@@ -91,8 +91,7 @@ func (s *WSSender) SetHeartbeatInterval(d time.Duration) error {
 func (s *WSSender) shouldSendHeartbeat() <-chan time.Time {
 	t := s.heartbeatTimer
 
-	// Before Go 1.23, the only safe way to use Reset was to [Stop] and
-	// explicitly drain the timer first.
+	// Handle both GODEBUG=asynctimerchan=[0|1] properly.
 	// ref: https://pkg.go.dev/time#Timer.Reset
 	if !t.Stop() {
 		select {
@@ -123,6 +122,15 @@ out:
 			s.sendNextMessage(ctx)
 
 		case <-ctx.Done():
+			select {
+			// If there is a pending message, we will try to send it before closing the connection.
+			case <-s.hasPendingMessage:
+				stopCtx, cancel := context.WithTimeout(context.Background(), defaultSendCloseMessageTimeout)
+				defer cancel()
+				s.sendNextMessage(stopCtx)
+			default:
+			}
+
 			if err := s.sendCloseMessage(); err != nil && err != websocket.ErrCloseSent {
 				s.err = err
 			}

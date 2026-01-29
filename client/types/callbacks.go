@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/open-telemetry/opamp-go/client/internal/utils"
 	"github.com/open-telemetry/opamp-go/protobufs"
 )
 
@@ -18,10 +19,11 @@ type MessageData struct {
 
 	// Connection settings are offered by the Server. These fields should be processed
 	// as described in the ConnectionSettingsOffers message.
-	OwnMetricsConnSettings *protobufs.TelemetryConnectionSettings
-	OwnTracesConnSettings  *protobufs.TelemetryConnectionSettings
-	OwnLogsConnSettings    *protobufs.TelemetryConnectionSettings
-	OtherConnSettings      map[string]*protobufs.OtherConnectionSettings
+	OfferedConnectionsSettingsHash []byte
+	OwnMetricsConnSettings         *protobufs.TelemetryConnectionSettings
+	OwnTracesConnSettings          *protobufs.TelemetryConnectionSettings
+	OwnLogsConnSettings            *protobufs.TelemetryConnectionSettings
+	OtherConnSettings              map[string]*protobufs.OtherConnectionSettings
 
 	// PackagesAvailable offered by the Server. The Agent must process the offer.
 	// The typical way to process is to call PackageSyncer.Sync() function, which will
@@ -130,6 +132,25 @@ type Callbacks struct {
 	//
 	// The responses in the via parameter are passed with their bodies closed.
 	CheckRedirect func(req *http.Request, viaReq []*http.Request, via []*http.Response) error
+
+	// DownloadHTTPClient is called to create an HTTP client that is used to download files by the package syncer.
+	// If the callback is not set, a default HTTP client will be created with the default transport settings.
+	// The callback must return a non-nil HTTP client or an error.
+	DownloadHTTPClient func(ctx context.Context, file *protobufs.DownloadableFile) (*http.Client, error)
+
+	// OnConnectionSettings is called when the agent recieves any non OpAMP
+	// connection settings.
+	//
+	// The Agent should process the offer by reconnecting the client using the new
+	// settings or return an error if the Agent does not want to accept the settings
+	// (e.g. if the TSL certificate in the settings cannot be verified).
+	//
+	// Only one OnConnectionSettings call can be active at any time.
+	// See OnRemoteConfig for the behavior.
+	OnConnectionSettings func(
+		ctx context.Context,
+		settings *protobufs.ConnectionSettingsOffers,
+	) error
 }
 
 func (c *Callbacks) SetDefaults() {
@@ -156,5 +177,14 @@ func (c *Callbacks) SetDefaults() {
 	}
 	if c.SaveRemoteConfigStatus == nil {
 		c.SaveRemoteConfigStatus = func(ctx context.Context, status *protobufs.RemoteConfigStatus) {}
+	}
+	if c.DownloadHTTPClient == nil {
+		defaultHttpClient := utils.NewHttpClient()
+		c.DownloadHTTPClient = func(ctx context.Context, file *protobufs.DownloadableFile) (*http.Client, error) {
+			return defaultHttpClient, nil
+		}
+	}
+	if c.OnConnectionSettings == nil {
+		c.OnConnectionSettings = func(ctx context.Context, settings *protobufs.ConnectionSettingsOffers) error { return nil }
 	}
 }

@@ -9,15 +9,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
-	"github.com/open-telemetry/opamp-go/internal"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/open-telemetry/opamp-go/client/internal/utils"
 	"github.com/open-telemetry/opamp-go/client/types"
+	"github.com/open-telemetry/opamp-go/internal"
 	"github.com/open-telemetry/opamp-go/protobufs"
 )
 
@@ -75,12 +77,41 @@ func NewHTTPSender(logger types.Logger) *HTTPSender {
 	h := &HTTPSender{
 		SenderCommon:      NewSenderCommon(),
 		logger:            logger,
-		client:            http.DefaultClient,
+		client:            utils.NewHttpClient(),
 		pollingIntervalMs: defaultPollingIntervalMs,
 	}
 	// initialize the headers with no additional headers
 	h.SetRequestHeader(nil, nil)
 	return h
+}
+
+// SetProxy will force each request to use passed proxy and use the passed headers when making a CONNECT request to the proxy.
+// If the proxy has no schema http is used.
+// This method is not thread safe and must be called before h.client is used.
+func (h *HTTPSender) SetProxy(proxy string, headers http.Header) error {
+	proxyURL, err := url.Parse(proxy)
+	if err != nil || proxyURL.Scheme == "" || proxyURL.Host == "" { // error or bad URL - try to use http as scheme to resolve
+		proxyURL, err = url.Parse("http://" + proxy)
+		if err != nil {
+			return err
+		}
+	}
+	if proxyURL.Hostname() == "" {
+		return url.InvalidHostError(proxy)
+	}
+
+	proxyTransport := &http.Transport{}
+	if h.client.Transport != nil {
+		transport, ok := h.client.Transport.(*http.Transport)
+		if !ok {
+			return fmt.Errorf("unable to coorce client transport as *http.Transport detected type is: %T", h.client.Transport)
+		}
+		proxyTransport = transport.Clone()
+	}
+	proxyTransport.Proxy = http.ProxyURL(proxyURL)
+	proxyTransport.ProxyConnectHeader = headers
+	h.client.Transport = proxyTransport
+	return nil
 }
 
 // Run starts the processing loop that will perform the HTTP request/response.
@@ -95,13 +126,12 @@ func (h *HTTPSender) Run(
 	callbacks types.Callbacks,
 	clientSyncedState *ClientSyncedState,
 	packagesStateProvider types.PackagesStateProvider,
-	capabilities protobufs.AgentCapabilities,
 	packageSyncMutex *sync.Mutex,
 	reporterInterval time.Duration,
 ) {
 	h.url = url
 	h.callbacks = callbacks
-	h.receiveProcessor = newReceivedProcessor(h.logger, callbacks, h, clientSyncedState, packagesStateProvider, capabilities, packageSyncMutex, reporterInterval)
+	h.receiveProcessor = newReceivedProcessor(h.logger, callbacks, h, clientSyncedState, packagesStateProvider, packageSyncMutex, reporterInterval)
 
 	// we need to detect if the redirect was ever set, if not, we want default behaviour
 	if callbacks.CheckRedirect != nil {

@@ -4,13 +4,15 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
 	"text/template"
 	"time"
 
 	"github.com/google/uuid"
 
-	"github.com/open-telemetry/opamp-go/internal"
+	"github.com/open-telemetry/opamp-go/internal/examples/certs"
+	"github.com/open-telemetry/opamp-go/internal/examples/html"
 	"github.com/open-telemetry/opamp-go/internal/examples/server/data"
 	"github.com/open-telemetry/opamp-go/protobufs"
 )
@@ -30,6 +32,7 @@ func Start(rootDir string) {
 	mux.HandleFunc("/agent", renderAgent)
 	mux.HandleFunc("/save_config", saveCustomConfigForInstance)
 	mux.HandleFunc("/rotate_client_cert", rotateInstanceClientCert)
+	mux.HandleFunc("/opamp_connection_settings", opampConnectionSettings)
 	srv = &http.Server{
 		Addr:    "0.0.0.0:4321",
 		Handler: mux,
@@ -42,10 +45,7 @@ func Shutdown() {
 }
 
 func renderTemplate(w http.ResponseWriter, htmlTemplateFile string, data interface{}) {
-	t, err := template.ParseFiles(
-		path.Join(htmlDir, "header.html"),
-		path.Join(htmlDir, htmlTemplateFile),
-	)
+	t, err := template.ParseFS(html.HtmlFS, "html/*")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		logger.Printf("Error parsing html template %s: %v", htmlTemplateFile, err)
@@ -142,7 +142,7 @@ func rotateInstanceClientCert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new certificate for the agent.
-	certificate, err := internal.CreateTLSCert("../../certs/certs/ca.cert.pem", "../../certs/private/ca.key.pem")
+	certificate, err := certs.CreateTLSCert(certs.CaCert, certs.CaKey)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		logger.Println(err)
@@ -157,6 +157,84 @@ func rotateInstanceClientCert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the offer to the agent.
+	data.AllAgents.OfferAgentConnectionSettings(instanceId, offers)
+
+	logger.Printf("Waiting for agent %s to reconnect\n", instanceId)
+
+	// Wait for up to 5 seconds for a Status update, which is expected
+	// to be reported by the agent after we set the remote config.
+	timer := time.NewTicker(time.Second * 5)
+
+	// TODO: wait for agent to reconnect instead of waiting full 5 seconds.
+
+	select {
+	case <-timer.C:
+		logger.Printf("Time out waiting for agent %s to reconnect\n", instanceId)
+	}
+
+	http.Redirect(w, r, "/agent?instanceid="+uid.String(), http.StatusSeeOther)
+}
+
+func opampConnectionSettings(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Find the agent instance.
+	uid, err := uuid.Parse(r.Form.Get("instanceid"))
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	instanceId := data.InstanceId(uid)
+	agent := data.AllAgents.GetAgentReadonlyClone(instanceId)
+	if agent == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// parse tls_min
+	tlsMinVal := r.Form.Get("tls_min")
+	var tlsMin string
+	switch tlsMinVal {
+	case "TLSv1.0":
+		tlsMin = "1.0"
+	case "TLSv1.1":
+		tlsMin = "1.1"
+	case "TLSv1.2":
+		tlsMin = "1.2"
+	case "TLSv1.3":
+		tlsMin = "1.3"
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	offers := &protobufs.ConnectionSettingsOffers{
+		Opamp: &protobufs.OpAMPConnectionSettings{
+			Tls: &protobufs.TLSConnectionSettings{
+				CaPemContents: string(certs.CaCert),
+				MinVersion:    tlsMin,
+				MaxVersion:    "1.3",
+			},
+		},
+	}
+
+	rawProxyURL := r.Form.Get("proxy_url")
+	if len(rawProxyURL) > 0 {
+		proxyURL, err := url.Parse(rawProxyURL)
+		if err != nil {
+			logger.Printf("Unable to parse %q as URL: %v", rawProxyURL, err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		offers.Opamp.Proxy = &protobufs.ProxyConnectionSettings{
+			Url: proxyURL.String(),
+		}
+	}
+
 	data.AllAgents.OfferAgentConnectionSettings(instanceId, offers)
 
 	logger.Printf("Waiting for agent %s to reconnect\n", instanceId)
